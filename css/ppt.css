@@ -1,0 +1,477 @@
+ body {
+     margin: 0;
+ }
+
+ .container {
+     display: flex;
+     flex-direction: column;
+     max-width: 680px;
+     margin: 0 auto;
+     height: 100vh;
+     min-width: 300px;
+     overflow: hidden;
+     /* -webkit-overflow-scrolling: touch; */
+ }
+
+ .scroll {
+     overflow-y: auto;
+     flex: 1;
+     height: 100%;
+     width: 100%;
+ }
+
+ .btn {
+     width: 40px;
+     height: 40px;
+     /*border: 1px solid #ccc;*/
+     background-position: center center;
+     background-repeat: no-repeat;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ .btn-group {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+ }
+
+ .btn-group .btn {
+     margin-right: 14px;
+ }
+
+ .btn.hide {
+     display: none;
+ }
+
+ .controller {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     background-color: rgba(20, 22, 27, 0.7);
+     z-index: 999;
+ }
+
+ .slider {
+     /*background-color: #3b3b3b;*/
+     height: 18px;
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     font-size: 12px;
+     width: 100%;
+     margin-right: 14px;
+ }
+
+ input[type="range"] {
+     /*设置滑块下面那条线的样式*/
+     outline: none;
+     /*去掉点击时出现的外边框*/
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     /*这三个是去掉那条线原有的默认样式，划重点！！*/
+     width: 100%;
+     height: 1px;
+     /*background: orange;*/
+     background: #000000;
+     /*这三个是设置滑块下面那条线的样式*/
+     /*border-radius: 10px;*/
+     /*这个属性设置使填充进度条时的图形为圆角*/
+     /*background: -webkit-linear-gradient(#059CFA, #059CFA) no-repeat;*/
+     /*background:  -webkit-linear-gradient(red, black) no-repeat; */
+     /*background-size: 0% 100%;*/
+     /*        background: linear-gradient(45deg,#1a6adf 25%,#578cdf 25%,#578cdf 50%,#1a6adf 50%,#1a6adf 75%,#578cdf 75%,#578cdf 100%);
+    background-size: 28px 28px;*/
+ }
+ /*滑块*/
+
+ input[type="range"]::-webkit-slider-thumb {
+     /*::-webkit-slider-thumb是代表给滑块的样式进行变更*/
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+
+     /*  background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+
+        z-index: 999;
+        width: 13px;
+        height: 13px;
+        background-image: url('image/live_bt_icon@2x.png');
+        background-position: -77px center;*/
+     /*//这几个是设置滑块的样式*/
+     /*height: 25px;
+        width: 25px;*/
+     width: 18px;
+     height: 18px;
+     /*margin-top: -5px;*/
+     /*使滑块超出轨道部分的偏移量相等*/
+     background: #ffffff;
+     border-radius: 50%;
+     /*外观设置为圆形*/
+     border: solid 0.125em rgba(205, 224, 230, 0.5);
+
+     /*设置边框*/
+     /*box-shadow: 0 .125em .125em #3b4547;*/
+     /*添加底部阴影*/
+ }
+ /*轨道*/
+
+ input[type=range]::-webkit-slider-runnable-track {
+     /*  height: 18px;
+        background-color: #ccc*/
+     /*height: 15px;*/
+     /*border-radius: 10px;
+        box-shadow: 0 1px 1px #def3f8, inset 0 .125em .125em #0d1112;*/
+ }
+
+ input[type=range]:focus {
+     outline: none;
+ }
+
+ .head {
+     position: relative;
+ }
+
+ .controller {
+     position: absolute;
+     bottom: 0;
+     width: 100%;
+     color: #fff;
+ }
+
+
+ .screen {
+     background-color: rgb(55, 58, 63);
+     font-size: 12px;
+     color: #fff;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     width: 100vw;
+     max-width: 680px;
+     min-width: 300px;
+ }
+
+ .screen.rlt {
+     overflow: hidden;
+     zoom: 100%;
+ }
+
+ .screen.screen52 {
+     height: 40vw;
+     max-height: 272px;
+     min-height: 145px;
+     max-height: 100vh;
+ }
+
+ .screen.screen169 {
+     height: 56.25vw;
+     max-height: 382.5px;
+     min-height: 145px;
+     max-height: 100vh;
+ }
+
+ .screen.screen32 {
+     height: 66.67vw;
+     max-height: 453.33px;
+     min-height: 145px;
+     max-height: 100vh;
+ }
+
+ .screen.screen43 {
+     height: 75vw;
+     max-height: 510px;
+     min-height: 145px;
+     max-height: 100vh;
+ }
+
+ .screen.fullscreen {
+     width: 100vw;
+     height: 100vh;
+ }
+
+ .duration {
+     margin-left: 10px;
+ }
+
+ ul,
+ li {
+     margin: 0;
+     padding: 0;
+ }
+
+ .playlist .list_title,
+ .playlist .list_more {
+     height: 40px;
+     font-size: 0px;
+     line-height: 40px;
+     display: flex;
+     justify-content: flex-start;
+     align-items: center;
+ }
+
+
+ #playback {
+     -webkit-touch-callout: none;
+     -webkit-text-size-adjust: none;
+     -webkit-tap-highlight-color: transparent;
+     -webkit-user-select: none;
+ }
+
+ #playback .playlist .list_title {
+     margin-left: 14px;
+ }
+
+ .playlist .list_more.hide {
+     display: none
+ }
+
+ .playlist .list_more {
+     border-top: 1px solid #f0f0f0;
+     justify-content: center;
+ }
+
+ .playlist .list_title .list_icon,
+ .playlist .list_more .list_icon {
+     height: 16px;
+     width: 3px;
+     background-color: rgba(247, 106, 43, 1);
+ }
+
+ .playlist .list_title .list_text,
+ .playlist .list_more .list_text {
+     color: #333333;
+     font-size: 16px;
+     margin-left: 6px;
+     line-height: 20px;
+     cursor: pointer;
+     margin-top: 2px;
+ }
+
+ .playlist .list_more .list_text {
+     color: #f46b30;
+ }
+
+ .list_more .right_arrow {
+     background-image: url("../image/next_red.png");
+     background-repeat: no-repeat;
+     background-position: center center;
+     background-repeat: no-repeat;
+     background-size: contain;
+     width: 13px;
+     height: 13px;
+     margin-right: 1px;
+ }
+
+ .playlist .intro {
+     padding: 15px 10px;
+     padding-bottom: 0px;
+     font-size: 12px;
+     line-height: 29px;
+     display: flex;
+     flex-direction: column;
+ }
+
+ .playlist .intro .text {
+     flex: 1;
+ }
+
+ .playlist .intro .more {
+     display: flex;
+     flex-direction: row-reverse;
+     justify-content: flex-start;
+     align-items: center;
+     color: rgba(87, 107, 149, 0.8);
+     font-size: 14px;
+     height: 32px;
+ }
+
+
+
+ .playlist ul li,
+ .playlist .list .item {
+     line-height: 20px;
+     border-top: 1px solid #f0f0f0;
+     background-color: #fff;
+     font-size: 14px;
+     display: flex;
+     cursor: pointer;
+     height: 114px;
+     padding: 0;
+     padding-left: 14px;
+     padding-right: 14px;
+ }
+
+ .playlist ul li.active {
+     background-color: rgb(255, 244, 240);
+ }
+
+ .playlist ul li.hover,
+ .playlist .list .item.hover {
+     background-color: #ccc;
+ }
+
+ .playlist li .info {
+     margin-left: 14px;
+     display: flex;
+     flex-direction: column;
+     justify-content: space-between;
+     flex: 1;
+ }
+
+ .playlist li .title {
+     color: #373A35;
+     font-size: 15px;
+     line-height: 22px;
+     flex: 1;
+     max-height: 44px;
+     margin-top: 12px;
+ }
+
+
+ .playlist li .info .tag {
+     margin-right: 4px;
+     padding: 1px 2px;
+     font-size: 1px;
+     color: rgb(255, 255, 255);
+     background-color: rgb(255, 121, 54);
+     border-radius: 1px;
+     flex-shrink: 0;
+ }
+
+ .playlist li .info .status_0 {
+     background-color: rgb(94, 176, 233);
+ }
+
+
+ .playlist li .info .status_2 {
+     padding: 0;
+     margin: 0;
+ }
+
+ .authtag {
+     color: rgb(247, 106, 43);
+ }
+
+ .authtag span {
+     margin-right: 6px;
+ }
+
+ .playlist li .info .publiccode_0 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_2 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_3 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_4 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_5 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_6 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_7 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+ .playlist li .info .publiccode_8 {
+     color: rgb(247, 106, 43);
+     font-size: 13px;
+ }
+
+
+
+ .playlist li .info .publiccode_1 {
+     padding: 0;
+     margin: 0;
+ }
+
+
+
+
+ .playlist li.active .title {
+     /*color: rgb(247, 106, 43);*/
+     color: rgb(55, 58, 63);
+     font-size: 15px;
+ }
+
+ .playlist li .title .authtag {
+     font-size: 13px;
+     font-family: "PingFangSC-Regular";
+ }
+
+ .playlist li .pic {
+     /*background-image: url('../image/audio.png');*/
+     background-size: cover;
+     background-position: center center;
+     background-repeat: no-repeat;
+     cursor: pointer;
+     margin-top: 15px;
+ }
+
+ .playlist li .pic .pic_video {
+     /*background-image: url('../image/pic_video.png');*/
+     background-size: cover;
+     background-position: center center;
+     background-repeat: no-repeat;
+ }
+
+ .playlist li .pic,
+ .playlist li .pic .pic_video {
+     width: 112px;
+     height: 84px;
+ }
+
+ .playlist li .info .uname {
+     color: rgba(155, 155, 155, 1);
+     font-size: 13px;
+     line-height: 19px;
+     max-width: 156px;
+     width: 156px;
+     text-overflow: ellipsis;
+     overflow: hidden;
+     height: 19px;
+     margin-top: auto;
+     word-break: break-all;
+     white-space: nowrap;
+ }
+
+ .playlist li .info .extra {
+     display: flex;
+     justify-content: space-between;
+     line-height: 19px;
+     margin-bottom: 10px;
+ }
+
+ .playlist li .info .extra>span {
+     font-size: 13px;
+     color: rgba(155, 155, 155, 1);
+ }
+
+ .playlist li .info .extra>span:nth-of-type(2) {
+     margin-left: 0.20rem;
+     font-size: 13px;
+ }

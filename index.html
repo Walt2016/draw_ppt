@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <meta name="wap-font-scale" content="no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>几何画图PPT</title>
+    <link rel="stylesheet" href="css/swiper.min.css?v=1">
+    <link rel="stylesheet" href="css/ppt.min.css?v=1">
+    <script src="js/tpler.js"></script>
+    <script src="js/swiper.min.js?v=1"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="head">
+            <div class="screen screen43">
+                <div class="swiper-container swiper-container-horizontal" id="ppt_playback">
+                    <div class="swiper-wrapper" template="_ppt_tpl">
+                    </div>
+                    <div class="swiper-pagination swiper-pagination-fraction">
+                    </div>
+                    <div class="closePPT hide"></div>
+                </div>
+            </div>
+            <div class="controller">
+                <div class="btn-group"></div>
+                <div class="slider" id="slider1">
+                    <input type="range" value="0" max="30" min="0" step="1" class="range">
+                    <div class="result"></div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll">
+            <div class="playlist" id="playback_list" data-flex="1">
+                <ul class="playback" template="_playback_record_tpl">
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/template" id="_ppt_tpl">
+        <div class="swiper-slide">
+            <div class="swiper-zoom-container">
+                <canvas id="{=canvasid}" class="ppt"></canvas>
+            </div>
+        </div>
+    </script>
+    <script type="text/template" id="_playback_record_tpl">
+        <li eid="{=eid}" rid="{=id}" class="tinyline" on="changeShapeHandler" data-shape="{=key}">
+            <div class="pic">
+                <canvas id="logo{=$index}"></canvas>
+            </div>
+            <div class="info">
+                <div class="title clamp"><span class="authtag">{=authtag|playlist_authtag}</span>{=text}</div>
+                <div class="uname">{=uname}</div>
+                <div class="extra"><span class="time"></span><span class="playcount">{=playcount|wan}</span></div>
+            </div>
+        </li>
+    </script>
+    <script>
+    var PPTList = [];
+    for (var i = 0; i < 10; i++) {
+        PPTList.push({
+            canvasid: "ppt" + (i + 1),
+            num: i + 1
+        })
+    }
+
+    var shapeList = [
+
+        {
+            "key": "polygon",
+            "text": "多边形"
+        },
+
+        {
+            "key": "inpolygon",
+            "text": "内切多边形"
+        },
+        {
+            "key": "flower",
+            "text": "花"
+        },
+        {
+            "key": "sunflower",
+            "text": "太阳花"
+        },
+        {
+            "key": "sierpinski",
+            "text": "谢尔宾斯基"
+        },
+        {
+            "key": "ray",
+            "text": "射线"
+        },
+
+        {
+            "key": "cross",
+            "text": "交叉线"
+        },
+
+        {
+            "key": "mirror",
+            "text": "镜像"
+        },
+
+        {
+            "key": "fibonacci",
+            "text": "斐波那契螺线"
+        },
+        {
+            "key": "zebra",
+            "text": "斑马"
+        },
+        {
+            "key": "diagonal",
+            "text": "对角线"
+        }
+    ];
+
+
+    // var basic=[]
+    // {
+    //         "key": "line",
+    //         "text": "线条"
+    //     },
+    // {
+    //     "key": "triangle",
+    //     "text": "三角形"
+    // },
+    // {
+    //     "key": "square",
+    //     "text": "正方形"
+    // },
+    // {
+    //     "key": "rectangle",
+    //     "text": "矩形"
+    // },
+    // {
+    //     "key": "ellipse",
+    //     "text": "椭圆"
+    // },
+    // {
+    //     "key": "diamond",
+    //     "text": "菱形"
+    // },
+    // {
+    //     "key": "ring",
+    //     "text": "环形"
+    // },
+    // {
+    //     "key": "spiral",
+    //     "text": "螺线"
+    // },
+    // {
+    //     "key": "star",
+    //     "text": "星形"
+    // },
+    // {
+    //     "key": "circle",
+    //     "text": "圆形"
+    // },
+
+    var mySwiper;
+    var myDraw = function(canvasid, options) {
+        var draw = _.draw({
+            canvasid: canvasid,
+            ratio: "4:3",
+            background: 'rgba(255,255,255,0)' //"#3b3b3b"
+        });
+        var opt = {
+            shape: {
+                shape: options.shape || "polygon",
+                num: options.num,
+                r: options.r || 50,
+                showV: true,
+                showR: true,
+                lineWidth: 0.5,
+                lineColor: "#ccc"
+            },
+        };
+        if (options.motion) {
+            opt.motion = {
+                switch: "on",
+                mode: "rotation",
+                speed: 3
+            }
+        }
+        draw.setup(opt);
+    }
+
+    tpler([{
+            el: "#ppt_playback",
+            data: PPTList,
+            callback: function() {
+
+                this.data.forEach(function(t) {
+                    myDraw(t.canvasid, {
+                        shape: "polygon",
+                        num: t.num,
+                        motion: true
+                    });
+                });
+
+
+                mySwiper = new Swiper("#ppt_playback", {
+                    // autoplay: true, //可选选项，自动滑动
+                    // loop : true,
+                    zoom: true,
+                    pagination: {
+                        el: '.swiper-pagination',
+                        type: "fraction"
+                    },
+                    mousewheel: true,
+                    on: {
+                        slideChange: function() {
+                            mySlider.update(this.activeIndex);
+                        }
+                    }
+                });
+
+            }
+        },
+
+        {
+            el: "#playback_list",
+            data: shapeList,
+            methods: {
+                changeShapeHandler: function(item, ev) {
+                    item.siblings().removeClass("active");
+                    item.addClass("active");
+                    var shape = item.attr("data-shape")
+                    console.log(shape)
+
+                    PPTList.forEach(function(t) {
+                        myDraw(t.canvasid, {
+                            shape: shape,
+                            num: t.num,
+                            motion: true
+                        });
+                    });
+
+                }
+            },
+            callback: function() {
+                this.el.$("li").first().addClass("active");
+                this.data.forEach(function(t, i) {
+                    myDraw('logo' + (i + 1), {
+                        shape: t.key,
+                        num: i + 3,
+                        r: 30
+                    })
+                })
+            }
+        }
+    ]);
+
+
+    var btns = {};
+    var btnsOpt = [{
+            key: "play",
+            value: {
+                shape: {
+                    s: "polygon",
+                    n: 3,
+                    r: 10,
+                    a: 0,
+                    fill: true,
+                    color: "gray"
+                }
+
+            }
+        },
+        {
+            key: "pause",
+            value: {
+                shape: {
+                    s: "polygon",
+                    n: 4,
+                    r: 10,
+                    a: 45,
+                    fill: true,
+                    color: "gray"
+                }
+
+            }
+
+        },
+        {
+            key: "loading",
+            value: {
+                shape: {
+                    s: "ray",
+                    n: 4,
+                    r: 10,
+                    a: 45,
+                    fill: true,
+                    color: "gray"
+                },
+                motion: {
+                    switch: "on",
+                    mode: "rotation",
+                    speed: 3
+                }
+            }
+        },
+        {
+            key: "fullscreen",
+            value: {
+                shape: {
+                    s: "polygon",
+                    n: 3,
+                    r: 5,
+                    a: 90,
+                    fill: true,
+                    color: "gray",
+
+                },
+                group: {
+                    switch: "on",
+                    group: "surround",
+                    sr: 5,
+                    interval: 180,
+                    rotation: true,
+                    a: 0,
+                    rotation: false,
+                }
+
+            }
+        }
+    ];
+
+
+
+    var color = "rgba(255,255,255,0)"; //背景透明
+    var btnGroup = _.$(".btn-group");
+
+    btnsOpt.forEach(function(t) {
+        var draw = _.draw({
+            width: "40",
+            height: "40",
+            background: color,
+        });
+        draw.setup(t.value);
+        btns[t.key] = draw.toElement({
+            className: "btn " + t.key
+        });
+    });
+
+    ["play", "pause", "loading"].forEach(function(t, i) {
+        if (i > 0)
+            _.hide(btns[t]);
+        btnGroup.appendChild(btns[t]);
+    });
+    _.$(".controller").appendChild(btns.fullscreen);
+
+
+
+
+    var silder = function(options) {
+        return new silder.prototype.init(options)
+    }
+    silder.prototype = {
+        constructor: silder,
+        init: function(options) {
+            var self = this;
+            var el = _.$(options.el);
+            if (_.isArray(el)) {
+                return el.map(function(t) {
+                    return silder(_.extend({}, options, { el: t }));
+                });
+            };
+            this.color = options.color || ["#059CFA", "#ccc"];
+            ["result", "range", "btnSub", "btnAdd", "duration", "btnPlay"].forEach(function(t) {
+                self[t] = el.$("." + t);
+            });
+            ["max", "min", "step", "value"].forEach(function(t) {
+                if (!_.isUndefined(options[t])) {
+                    self[t] = options[t];
+                    self.range.attr(t, options[t]);
+                } else {
+                    self[t] = Number(self.range.attr(t));
+                }
+            });
+
+            this.changeResult();
+            this.colorTrack();
+            this.changeTime();
+
+            this.callback = options.callback;
+
+
+            toucher([{
+                    el: self.btnSub,
+                    callback: function() {
+                        self.sub()
+                    }
+                }, {
+                    el: self.btnAdd,
+                    callback: function() {
+                        self.add()
+                    }
+                }, {
+                    el: self.range,
+                    type: "input",
+                    callback: function() {
+                        self.move()
+                    }
+                }, {
+                    el: self.range,
+                    type: "change",
+                    callback: function() {
+                        self.move()
+                    }
+                },
+            ]);
+
+
+
+            toucher([{
+                    el: btns.play,
+                    callback: function(item) {
+                        console.log(item)
+                        _.hide(btns.play)
+                        _.show(btns.loading)
+
+                        setTimeout(function() {
+                            _.show(btns.pause);
+                            _.hide(btns.loading)
+                            self.play();
+                        }, 1000)
+                    }
+                },
+                {
+                    el: btns.pause,
+                    callback: function() {
+                        _.hide(btns.pause);
+                        _.show(btns.play);
+                        self.pause();
+                    }
+                },
+                {
+                    el: btns.fullscreen,
+                    callback: function() {
+
+                        if (_.$(".screen").hasClass("screen43")) {
+                            _.$(".screen").removeClass("screen43").addClass("fullscreen");
+                        } else {
+
+                            _.$(".screen").removeClass("fullscreen").addClass("screen43");
+                        }
+
+                    }
+                }
+            ]);
+
+
+            return self;
+
+        },
+        //轨道颜色
+        colorTrack: function() {
+            var ps = parseInt(100 * this.value / this.max);
+            this.range.css({ 'background': '-webkit-linear-gradient(0deg, ' + this.color[0] + ' ' + ps + '%, ' + this.color[1] + ' ' + ps + '%)' })
+        },
+        //值
+        changeResult: function() {
+            if (this.result && this.result.length > 0) {
+                switch (this.result.nodeName.toLowerCase()) {
+                    case "input":
+                        this.result.value = this.value;
+                        break;
+                    case "div":
+                        this.result.innerHTML = (this.value + 1) + "/" + (this.max + 1);
+                        break;
+                }
+            }
+        },
+        //时间
+        changeTime: function() {
+            if (this.duration && this.duration.length > 0) {
+                this.duration.innerHTML = this.timeFormat(this.value) + "/" + this.timeFormat(this.max);
+            }
+        },
+        changeBtn: function() {
+            if (this.btnPlay && this.btnPlay.length > 0) {
+                var s = ""
+                switch (this.state) {
+                    case "loading":
+                        s = "加载";
+                        break;
+                    case "playing":
+                        s = "暂停";
+                        break;
+                    case "pause":
+                        s = "播放";
+                        break;
+                }
+                this.btnPlay.innerHTML = s; // this.state ? "暂停" : "播放";
+            }
+        },
+        check: function(num) {
+            var num = num || Number(this.range.value); //Number(this.result.value);
+            return num >= this.min && num <= this.max;
+        },
+        change: function() {
+            if (this.check()) {
+                // this.range.value = this.result.value;
+                this.value = Number(this.range.value);
+            }
+        },
+        update: function(val) {
+
+            this.value = val;
+            this.range.value = val
+            this.changeResult();
+            this.colorTrack();
+            this.changeTime();
+
+        },
+        move: function() {
+            this.value = Number(this.range.value);
+            this.changeResult();
+            this.colorTrack();
+            this.changeTime();
+
+            this.callback && this.callback.call(this);
+
+        },
+        sub: function() {
+            var num = this.value - this.step;
+            if (this.check(num)) {
+                this.range.value = this.value = num;
+                this.changeResult();
+                this.colorTrack();
+                this.changeTime();
+            }
+            this.callback && this.callback();
+        },
+        add: function() {
+            var num = this.value + this.step;
+            if (this.check(num)) {
+                this.range.value = this.value = num;
+                this.changeResult();
+                this.colorTrack();
+                this.changeTime();
+            }
+            this.changeBtn();
+            this.callback && this.callback.call(this);
+        },
+        //时间格式  秒
+        timeFormat: function(duration) {
+            //小时
+            var hour = 0;
+            if (duration > 3600)
+                hour = duration ? parseInt(duration / 3600) : 0;
+
+            //分钟
+            duration = duration ? duration % 3600 : 0;
+            var minute = duration ? parseInt(duration / 60) : 0;
+            if (minute < 10)
+                minute = "0" + minute;
+
+            //秒
+            var seconds = duration ? parseInt(duration % 60) : 0;
+            if (seconds < 10)
+                seconds = "0" + seconds;
+
+            return hour ? hour + ":" + minute + ":" + seconds : minute + ":" + seconds;
+        },
+        play: function() {
+            var self = this;
+            self.state = "loading";
+            self.changeBtn();
+            (function _play() {
+                self.state = "playing";
+                self.timmer = setTimeout(function() {
+                    if (self.value >= self.max) {
+                        self.pause.call(self);
+                        self.reset.call(self);
+                        return;
+                    }
+                    self.add();
+                    _play();
+                }, 1000)
+            })();
+        },
+        pause: function() {
+            var self = this;
+            self.state = "pause";
+            clearTimeout(self.timmer);
+            self.changeBtn();
+        },
+        reset: function() {
+            this.range.value = this.value = 0;
+            this.colorTrack();
+            this.callback && this.callback.call(this);
+
+            _.hide(btns.pause);
+            _.show(btns.play);
+        }
+    }
+    silder.prototype.init.prototype = silder.prototype;
+
+    var mySlider = silder({
+        el: ".slider",
+        color: ["rgba(247, 106, 43, 1)", 'white'],
+        max: 9,
+        min: 0,
+        step: 1,
+        value: 0,
+        callback: function() {
+            mySwiper && mySwiper.slideTo(this.value, 1000, false); 
+        }
+    })
+    </script>
+</body>
+
+</html>

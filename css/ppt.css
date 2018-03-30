@@ -2,6 +2,14 @@
      margin: 0;
  }
 
+ .rlt {
+     position: relative;
+ }
+
+ .abs {
+     position: absolute;
+ }
+
  .container {
      display: flex;
      flex-direction: column;
@@ -53,7 +61,13 @@
      z-index: 999;
  }
 
- .slider {
+ .controller.fadeout,
+ .controller.hide {
+     display: none;
+ }
+
+ .slider,
+ .sliderBottom {
      /*background-color: #3b3b3b;*/
      height: 18px;
      display: flex;
@@ -62,6 +76,20 @@
      font-size: 12px;
      width: 100%;
      margin-right: 14px;
+ }
+
+ .sliderBottom {
+     height: 1px;
+ }
+
+ .slider.hide,
+ .sliderBottom.hide {
+     display: none
+ }
+
+ .slider.fadeout,
+ .sliderBottom.fadeout {
+     display: none
  }
 
  input[type="range"] {
@@ -118,6 +146,12 @@
      /*box-shadow: 0 .125em .125em #3b4547;*/
      /*添加底部阴影*/
  }
+
+ input[type="range"].rangeBottom::-webkit-slider-thumb {
+     width: 1px;
+     height: 1px;
+     background: none;
+ }
  /*轨道*/
 
  input[type=range]::-webkit-slider-runnable-track {
@@ -143,6 +177,10 @@
      color: #fff;
  }
 
+ .controller.hide {
+     display: none
+ }
+
 
  .screen {
      background-color: rgb(55, 58, 63);
@@ -156,6 +194,9 @@
      max-width: 680px;
      min-width: 300px;
  }
+  .screen.hide{
+     display: none
+  }
 
  .screen.rlt {
      overflow: hidden;
@@ -472,6 +513,23 @@
  }
 
  .playlist li .info .extra>span:nth-of-type(2) {
-     margin-left: 0.20rem;
+     margin-left: 20px;
      font-size: 13px;
+ }
+
+
+ .btn-smallscreen {
+     /*background-image: url("../image/closePPT.png");*/
+     background-repeat: no-repeat;
+     background-position: center center;
+     background-size: contain;
+     background-color: #3b3b3b;
+     position: absolute;
+     right: 13px;
+     top: 13px;
+     width: 22px;
+     height: 22px;
+     z-index: 999;
+     cursor: pointer;
+     border-radius: 50%;
  }

@@ -1,4 +1,7 @@
 //一个js开发框架
+//template.event.canvas
+//兼容小程序
+//v0.4.20180327
 ;
 (function(root, factory) {
     if (typeof define === "function" && define.amd) {
@@ -3814,7 +3817,6 @@
                             return this._parseValue();
 
                         }
-
                         break;
                 }
             },
@@ -4397,7 +4399,7 @@
                     if (this.opt.fill) {
                         this.opt.color = _.rgba();
                     } else {
-                        this.opt.color = _.rgb(); //_.hsl();小程序不支持
+                        this.opt.color = _.rgb();
                     }
                 }
                 return this;
@@ -4606,7 +4608,7 @@
                     var p = _.point(_.extend({}, opt, {
                         a: an,
                         r: rn
-                    }))
+                    }));
                     vs.push(p);
                 }
                 return vs;
@@ -4629,6 +4631,19 @@
                     vs2.push(p);
                 })
                 return vs2;
+            },
+            text: function(opt) {
+                var ctx = this.context;
+                var x = opt.x,
+                    y = opt.y,
+                    r = opt.r;
+                var text = opt.num || opt.text;
+                var color=opt.color||"#000";
+
+                ctx.fillStyle = color;
+                ctx.font = r+"px Verdana";
+                var measure=ctx.measureText(text);
+                ctx.fillText(text, x - measure.width/2, y + r/2);
             },
 
             circle: function(opt) {
@@ -4964,6 +4979,78 @@
                 });
                 return this.draw.linkGroup(vsGroup, opt);
             },
+            //轴对称
+            axialMirror: function(opt) {
+                var self = this;
+                var vsGroup = [];
+                var vs = this.vertices(opt);
+                vsGroup.push(vs);
+                var a = opt.a,
+                    num = opt.num,
+                    r = opt.r;
+                var an,
+                    rn = 2 * r * _.cos(180 / num);
+                vs.forEach(function(t, i) {
+                    var p = _.point(_.extend({}, opt, {
+                        a: t.a + 180 / num,
+                        r: rn
+                    }));
+                    var vs2 = self.vertices(_.extend({}, opt, {
+                        x: p.x,
+                        y: p.y
+                    }));
+                    vsGroup.push(vs2);
+                });
+                return this.draw.linkGroup(vsGroup, opt);
+            },
+            //蜂巢
+            comb: function(opt) {
+                var self = this;
+                var vsGroup = [];
+                opt.num = 6;
+                var vs = this.vertices(opt);
+                vsGroup.push(vs);
+                var a = opt.a,
+                    num = opt.num,
+                    r = opt.r;
+                var _comb1 = function(n) {
+                    var rn = 2 * n * r * _.cos(180 / num);
+                    vs.forEach(function(t, i) {
+                        var p = _.point(_.extend({}, opt, {
+                            a: t.a + 180 / num,
+                            r: rn
+                        }));
+                        var vs2 = self.vertices(_.extend({}, opt, {
+                            x: p.x,
+                            y: p.y
+                        }));
+                        vsGroup.push(vs2);
+                    });
+
+                };
+                var _comb2 = function(n) {
+                    var rn = 2 * n * r + r; //3 * r 
+                    vs.forEach(function(t, i) {
+                        var p = _.point(_.extend({}, opt, {
+                            a: t.a,
+                            r: rn
+                        }));
+                        var vs2 = self.vertices(_.extend({}, opt, {
+                            x: p.x,
+                            y: p.y
+                        }));
+                        vsGroup.push(vs2);
+                    });
+                };
+                [1, 2, 3].forEach(function(n) {
+                    _comb1(n);
+                    _comb2(n);
+                });
+
+
+                return this.draw.linkGroup(vsGroup, opt);
+
+            }
         }
         _shape.prototype.init.prototype = _shape.prototype;
 
@@ -5066,7 +5153,7 @@
                     if (fill) {
                         opt2.color = _.rgba();
                     } else {
-                        opt2.color = _.rgb(); //_.hsl();//小程序不支持 hsl
+                        opt2.color = _.rgb();
                     }
                 }
                 return opt2;
@@ -5086,7 +5173,6 @@
             },
             //反弹
             bounce: function() {
-
                 var g = this.opt.group
                 if (g.x < g.range.left + g.width) { //碰到左边的边界
                     g.x = g.width;
@@ -5210,22 +5296,19 @@
                     var opt2 = {
                         x: x + sr * _.sin(a),
                         y: y + sr * _.cos(a),
-                        r: r,
-                        // color: opt.group.colorArr[index++]
+                        r: r
                     }
+                    //颜色
                     if (opt.group.colorArr.length > index) {
                         opt2.color = opt.group.colorArr[index++];
                     }
 
-                    opt.shape = _.extend({}, opt.shape, opt2) //, self.color(opt)
+                    opt.shape = _.extend({}, opt.shape, opt2);
 
                     self.shape(opt);
+                    //显示半径
                     if (opt.group.showRadius) {
                         self.draw.link([{ x: x, y: y }, { x: opt.shape.x, y: opt.shape.y }]);
-                        // self.draw.shape({
-                        //     shape:"ray",
-                        //     r:opt.group.sr+opt.shape.r
-                        // })
                     }
 
                     if (opt.group.animate) { //动画
@@ -5247,28 +5330,6 @@
                         fill: true
                     });
                 }
-
-                //显示半径
-                // if (opt.group.showRadius) {
-                //     self.draw.shape({
-                //         shape:"ray",
-                //         r:opt.group.sr+opt.shape.r
-                //         num:
-                //     })
-                //     // var x = opt.x,
-                //     //     y = opt.y;
-                //     // ctx.beginPath();
-                //     // ctx.moveTo(x, y);
-                //     // ctx.lineTo(opt.shape.x, opt.shape.y)
-                //     // // vs.forEach(function(t) {
-
-                //     // // })
-                //     // self.draw.render(opt.group);
-                // }
-
-
-
-
                 return self;
             },
             //同心
@@ -5315,6 +5376,8 @@
                 var animate = opt.group.animate;
                 var animationInterval = opt.group.animationInterval || 5;
                 var clockwise = opt.group.clockwise;
+                var rotation = opt.group.rotation; //自转
+                var sa = opt.group.a || 0;
 
 
                 var top = r + my / 2;
@@ -5326,14 +5389,16 @@
                 } else {
                     opt.shape.x = right;
                 }
-
+                if (rotation) { //自转
+                    opt.shape.a = sa
+                }
+                var index = 0;
                 (function _repeat() {
                     if (clockwise) {
                         if (opt.shape.x > w) {
                             return;
                         }
                         if (opt.shape.y > h) {
-
                             opt.shape.y = top;
                             opt.shape.x += 2 * r;
                         }
@@ -5346,7 +5411,11 @@
                             opt.shape.x -= 2 * r;
                         }
                     }
-                    opt.shape = _.extend({}, opt.shape, self.color(opt));
+                    if (opt.group.colorArr.length > index) {
+                        opt.shape.color = opt.group.colorArr[index++];
+                    }
+
+                    opt.shape = _.extend({}, opt.shape); //, self.color(opt)
                     self.shape.call(self, opt);
                     opt.shape.y += 2 * r;
                     if (animate) {
@@ -5896,26 +5965,39 @@
 
                 if (_.isObject(options)) {
                     this.options = options;
-                    // options.a = options.a || options.angle;
                     this.attr(options);
-                    var color = options["background"] || options["background-color"];
-                    var src = options["background-image"];
-                    var size = options["background-size"];
-                    var position = options["background-position"];
-                    var repeat = options["background-repeat"];
-
-                    // this.background
-
-                    this.background({
-                        color: color,
-                        src: src,
-                        size: size,
-                        position: position,
-                        repeat: repeat
+                    var bg = {};
+                    [{
+                            k: "color",
+                            v: "background-color"
+                        },
+                        {
+                            k: "color",
+                            v: "background"
+                        },
+                        {
+                            k: "src",
+                            v: "background-image"
+                        },
+                        {
+                            k: "size",
+                            v: "background-size"
+                        },
+                        {
+                            k: "position",
+                            v: "background-position"
+                        },
+                        {
+                            k: "repeat",
+                            v: "background-repeat"
+                        }
+                    ].forEach(function(t) {
+                        if (options[t.v])
+                            bg[t.k] = options[t.v]
                     });
+                    this.background(bg);
                     this.callback = options.callback;
                 }
-
                 return this;
             },
             //比率
@@ -5971,7 +6053,6 @@
 
 
                 if (color) {
-                    // ctx.fillStyle = color;
                     self.setFillStyle(color);
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                 }
@@ -6013,7 +6094,6 @@
                                     zoom: zoom,
                                     callback: function() {
                                         var bg = ctx.createPattern(this, 'repeat');
-                                        // ctx.fillStyle = bg;
                                         self.setFillStyle(bg);
                                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                                         ctx.fill();
@@ -6112,7 +6192,7 @@
                 if (opt) {
                     this.setLineWidth(opt.lineWidth);
                     if (opt.randomColor) {
-                        opt.color = _.rgb(); //_.hsl();小程序不支持
+                        opt.color = _.rgb();
                     }
                     if (_.isUndefined(opt.stroke) || opt.stroke) {
                         this.setStrokeStyle(opt.lineColor || opt.color);
@@ -6157,10 +6237,8 @@
                 var canvas = this.canvas;
                 var ctx = this.context;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-
                 // this.setFillStyle(color || this.options.background || "#ffffff");
                 // ctx.fillRect(0, 0, canvas.width, canvas.height);
-
             },
             //中心点
             central: function() {
@@ -6174,7 +6252,6 @@
             default: function(opt) {
                 var canvas = this.canvas;
                 if (opt) {
-
                     return _.extend({}, this.default(), opt);
                 } else {
                     return {
@@ -6410,10 +6487,6 @@
                 }
                 return this.linkGroup(vsGroup, opt);
             },
-
-
-
-
             //旁切圆
             escribedcircle: function(opt) {
 
@@ -6430,12 +6503,8 @@
                 // }
                 // p=p/2;
             },
-
-
         }
         draw.prototype.init.prototype = draw.prototype;
-
-
 
 
 

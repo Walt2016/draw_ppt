@@ -10,30 +10,33 @@
     <meta http-equiv="Expires" content="0" />
     <title>几何画图PPT</title>
     <link rel="stylesheet" href="css/swiper.min.css?v=1">
-    <link rel="stylesheet" href="css/ppt.min.css?v=1">
+    <link rel="stylesheet" href="css/ppt.min.css?v=8">
     <script src="js/tpler.js"></script>
     <script src="js/swiper.min.js?v=1"></script>
-
 </head>
 
 <body>
     <div class="container">
-        <div class="head">
-            <div class="screen screen43">
-                <div class="swiper-container swiper-container-horizontal" id="ppt_playback">
+        <div class="head h5player">
+            <div class="screen screen169 screencover ">
+            </div>
+            <div class="screen screen43 screenmain hide">
+                <div class="swiper-container swiper-container-horizontal" id="ppt_container">
                     <div class="swiper-wrapper" template="_ppt_tpl">
                     </div>
                     <div class="swiper-pagination swiper-pagination-fraction">
                     </div>
-                    <div class="closePPT hide"></div>
                 </div>
             </div>
-            <div class="controller">
+            <div class="controller fadeout">
                 <div class="btn-group"></div>
                 <div class="slider" id="slider1">
                     <input type="range" value="0" max="30" min="0" step="1" class="range">
-                    <div class="result"></div>
+                    <div class="output"></div>
                 </div>
+            </div>
+            <div class="sliderBottom fadeout abs" id="slider2">
+                <input type="range" value="0" max="30" min="0" step="1" class="rangeBottom">
             </div>
         </div>
         <div class="scroll">
@@ -63,6 +66,12 @@
         </li>
     </script>
     <script>
+    var mp3id = ["317151", "281951", "27678655", "436514312"];
+    var mp3Cycle = _.cycle(mp3id);
+    var nextMp3 = function() {
+        var music163 = "http://music.163.com/song/media/outer/url?id=xxx.mp3";
+        return music163.replace("xxx", mp3Cycle.next())
+    }
     var PPTList = [];
     for (var i = 0; i < 10; i++) {
         PPTList.push({
@@ -71,7 +80,10 @@
         })
     }
 
-    var shapeList = [
+    var shapeList = [{
+            "key": "text",
+            "text": "文字"
+        },
 
         {
             "key": "polygon",
@@ -124,49 +136,30 @@
     ];
 
 
-    // var basic=[]
-    // {
-    //         "key": "line",
-    //         "text": "线条"
-    //     },
-    // {
-    //     "key": "triangle",
-    //     "text": "三角形"
-    // },
-    // {
-    //     "key": "square",
-    //     "text": "正方形"
-    // },
-    // {
-    //     "key": "rectangle",
-    //     "text": "矩形"
-    // },
-    // {
-    //     "key": "ellipse",
-    //     "text": "椭圆"
-    // },
-    // {
-    //     "key": "diamond",
-    //     "text": "菱形"
-    // },
-    // {
-    //     "key": "ring",
-    //     "text": "环形"
-    // },
-    // {
-    //     "key": "spiral",
-    //     "text": "螺线"
-    // },
-    // {
-    //     "key": "star",
-    //     "text": "星形"
-    // },
-    // {
-    //     "key": "circle",
-    //     "text": "圆形"
-    // },
+    var initPPT = function(shape) {
+        PPTList.forEach(function(t) {
+            myDraw(t.canvasid, {
+                shape: shape || "text", //polygon
+                num: t.num,
 
-    var mySwiper;
+                // motion: true
+            });
+        });
+
+    }
+    var initSwiper = function() {
+        return new Swiper("#ppt_container", {
+            init: false,
+            pagination: {
+                el: '.swiper-pagination',
+                type: "fraction"
+            },
+            mousewheel: true,
+        });
+    }
+
+    var mySwiper = initSwiper();
+
     var myDraw = function(canvasid, options) {
         var draw = _.draw({
             canvasid: canvasid,
@@ -181,9 +174,14 @@
                 showV: true,
                 showR: true,
                 lineWidth: 0.5,
-                lineColor: "#ccc"
+                lineColor: "#ccc",
+                color: options.color
             },
         };
+        if (options.shape == "text") {
+            opt.shape.r = 120;
+            opt.shape.color = "#ccc";
+        }
         if (options.motion) {
             opt.motion = {
                 switch: "on",
@@ -195,38 +193,10 @@
     }
 
     tpler([{
-            el: "#ppt_playback",
+            el: "#ppt_container",
             data: PPTList,
-            callback: function() {
-
-                this.data.forEach(function(t) {
-                    myDraw(t.canvasid, {
-                        shape: "polygon",
-                        num: t.num,
-                        //motion: true
-                    });
-                });
-
-
-                mySwiper = new Swiper("#ppt_playback", {
-                    // autoplay: true, //可选选项，自动滑动
-                    // loop : true,
-                    zoom: true,
-                    pagination: {
-                        el: '.swiper-pagination',
-                        type: "fraction"
-                    },
-                    mousewheel: true,
-                    on: {
-                        slideChange: function() {
-                            mySlider.update(this.activeIndex);
-                        }
-                    }
-                });
-
-            }
+            callback: function() {}
         },
-
         {
             el: "#playback_list",
             data: shapeList,
@@ -235,16 +205,9 @@
                     item.siblings().removeClass("active");
                     item.addClass("active");
                     var shape = item.attr("data-shape")
-                    console.log(shape)
-
-                    PPTList.forEach(function(t) {
-                        myDraw(t.canvasid, {
-                            shape: shape,
-                            num: t.num,
-                           // motion: true
-                        });
-                    });
-
+                    myPlayer.src(nextMp3());
+                    mySwiper.init();
+                    initPPT(shape)
                 }
             },
             callback: function() {
@@ -263,7 +226,7 @@
 
     var btns = {};
     var btnsOpt = [{
-            key: "play",
+            key: "btn-play",
             value: {
                 shape: {
                     s: "polygon",
@@ -273,11 +236,10 @@
                     fill: true,
                     color: "gray"
                 }
-
             }
         },
         {
-            key: "pause",
+            key: "btn-pause",
             value: {
                 shape: {
                     s: "polygon",
@@ -287,12 +249,10 @@
                     fill: true,
                     color: "gray"
                 }
-
             }
-
         },
         {
-            key: "loading",
+            key: "btn-loading",
             value: {
                 shape: {
                     s: "ray",
@@ -310,7 +270,7 @@
             }
         },
         {
-            key: "fullscreen",
+            key: "btn-fullscreen",
             value: {
                 shape: {
                     s: "polygon",
@@ -332,6 +292,36 @@
                 }
 
             }
+        },
+        {
+            key: "btn-smallscreen",
+            value: {
+                shape: {
+                    s: "cross",
+                    n: 2,
+                    r: 10,
+                    a: 45,
+                    // fill: true,
+                    color: "gray",
+                    showEC: true,
+                    lineWidth: 2
+                }
+            }
+        },
+        {
+            key: "btn-cover",
+            value: {
+                shape: {
+                    s: "polygon",
+                    n: 3,
+                    r: 20,
+                    a: 0,
+                    fill: true,
+                    color: "gray",
+                    // showEC: true,
+                    // lineWidth: 2
+                }
+            }
         }
     ];
 
@@ -352,272 +342,488 @@
         });
     });
 
-    ["play", "pause", "loading"].forEach(function(t, i) {
+    ["btn-play", "btn-pause", "btn-loading"].forEach(function(t, i) {
         if (i > 0)
             _.hide(btns[t]);
         btnGroup.appendChild(btns[t]);
     });
-    _.$(".controller").appendChild(btns.fullscreen);
+    _.$(".controller").appendChild(btns["btn-fullscreen"]);
+    _.$(".screenmain").appendChild(btns["btn-smallscreen"]).hide();
+    _.$(".screencover").appendChild(btns["btn-cover"]);
 
 
-
-
-    var silder = function(options) {
-        return new silder.prototype.init(options)
+    var h5player = function(options) {
+        return new h5player.prototype.init(options)
     }
-    silder.prototype = {
-        constructor: silder,
+    h5player.prototype = {
+        constructor: h5player,
         init: function(options) {
             var self = this;
             var el = _.$(options.el);
             if (_.isArray(el)) {
                 return el.map(function(t) {
-                    return silder(_.extend({}, options, { el: t }));
+                    return h5player(_.extend({}, options, { el: t }));
                 });
             };
+            this.on = options.on;
+            //ele
+            var events = [];
             this.color = options.color || ["#059CFA", "#ccc"];
-            ["result", "range", "btnSub", "btnAdd", "duration", "btnPlay"].forEach(function(t) {
-                self[t] = el.$("." + t);
+            ["controller", "sliderBottom", "rangeBottom", "screencover"].forEach(function(t) {
+                var ele = el.$("." + t);
+                if (ele.length > 0) {
+                    self["ele_" + t] = ele;
+                }
             });
-            ["max", "min", "step", "value"].forEach(function(t) {
+
+            //ele & event
+            ["output", "range", "btn-sub", "btn-add", "btn-play", "btn-pause", "btn-loading", "screenmain", "btn-fullscreen", "btn-smallscreen", "btn-cover"].forEach(function(t) {
+                var ele = el.$("." + t);
+                if (ele.length > 0) {
+                    t = t.replace("btn-", "");
+                    self["ele_" + t] = ele;
+                    if ("range" == t) {
+                        events.push({
+                            el: self["ele_" + t],
+                            type: "input",
+                            callback: function() {
+                                self.move();
+                            }
+                        });
+                        events.push({
+                            el: self["ele_" + t],
+                            type: "change",
+                            callback: function() {
+                                self.move();
+                                self.media && self.media.sync();
+                            }
+                        });
+                        events.push({
+                            el: self["ele_" + t],
+                            type: "touchmove",
+                            callback: function() {
+                                self.isdraging = true;
+                            }
+                        })
+                        events.push({
+                            el: self["ele_" + t],
+                            type: "touchend",
+                            callback: function() {
+                                self.isdraging = false;
+                            }
+                        })
+                    } else if ("screenmain" == t) {
+                        events.push({
+                            el: self["ele_" + t],
+                            callback: function(item, e) {
+                                self.toggleController.call(self, item, e);
+                                // self[t].call(self, item, e);
+                                // self.on[t] && self.on[t]();
+                            }
+                        });
+
+                    } else {
+
+                        events.push({
+                            el: self["ele_" + t],
+                            callback: function(item, e) {
+                                self[t].call(self, item, e);
+                                self.on[t] && self.on[t]();
+                            }
+                        });
+                    }
+                }
+            });
+            toucher(events);
+
+            //range attr
+            if (self.ele_range) {
+                ["max", "min", "step", "value"].forEach(function(t) {
+                    if (!_.isUndefined(options[t])) {
+                        self[t] = options[t];
+                        self.ele_range.attr(t, options[t]);
+                        self.ele_rangeBottom.attr(t, options[t]);
+                    } else {
+                        self[t] = Number(self.ele_range.attr(t));
+                        self[t] = Number(self.ele_rangeBottom.attr(t));
+                    }
+                });
+            };
+
+            //fun
+            ["outputType", "onPlay", "callback"].forEach(function(t) {
                 if (!_.isUndefined(options[t])) {
                     self[t] = options[t];
-                    self.range.attr(t, options[t]);
-                } else {
-                    self[t] = Number(self.range.attr(t));
                 }
             });
 
-            this.changeResult();
-            this.colorTrack();
-            this.changeTime();
-
-            this.callback = options.callback;
-
-
-            toucher([{
-                    el: self.btnSub,
-                    callback: function() {
-                        self.sub()
-                    }
-                }, {
-                    el: self.btnAdd,
-                    callback: function() {
-                        self.add()
-                    }
-                }, {
-                    el: self.range,
-                    type: "input",
-                    callback: function() {
-                        self.move()
-                    }
-                }, {
-                    el: self.range,
-                    type: "change",
-                    callback: function() {
-                        self.move()
-                    }
-                },
-            ]);
-
-
-
-            toucher([{
-                    el: btns.play,
-                    callback: function(item) {
-                        console.log(item)
-                        _.hide(btns.play)
-                        _.show(btns.loading)
-
-                        setTimeout(function() {
-                            _.show(btns.pause);
-                            _.hide(btns.loading)
-                            self.play();
-                        }, 1000)
-                    }
-                },
-                {
-                    el: btns.pause,
-                    callback: function() {
-                        _.hide(btns.pause);
-                        _.show(btns.play);
-                        self.pause();
-                    }
-                },
-                {
-                    el: btns.fullscreen,
-                    callback: function() {
-
-                        if (_.$(".screen").hasClass("screen43")) {
-                            _.$(".screen").removeClass("screen43").addClass("fullscreen");
-                        } else {
-
-                            _.$(".screen").removeClass("fullscreen").addClass("screen43");
+            //swiper
+            if (options.swiper) {
+                var swiperCls = function(target, interval) {
+                    this.target = target;
+                    this.interval = interval;
+                }
+                swiperCls.prototype = {
+                    slideTo: function() {
+                        var index = Math.floor(self.value / this.interval);
+                        if (this.target) {
+                            if (this.target.activeIndex != index) {
+                                this.target.slideTo(index, 1000, false);
+                            }
                         }
+                    },
+                    sync: function(activeIndex) {
+                        self.update(Math.floor(activeIndex * this.interval));
+                        self.media && self.media.sync();
+                    },
+                    zoom: function(flag) {
+                        if (flag) {
+                            this.target.zoom.enable();
+                        } else {
+                            this.target.zoom.disable();
+                        }
+                    },
+                    update: function() {
+                        this.target.update();
+                    }
 
+                };
+                this.swiper = new swiperCls(options.swiper, options.swiperInterval || 1);
+                self.outputType = options.outputType || "fraction";
+            }
+            //media
+            if (options.media || options.audio) {
+
+                var Media = function(el) {
+                    this.el = el;
+                    var es = {
+                        durationchange: function(e) {
+                            self.attr("max", el.duration);
+                            if (options.swiper && !options.swiperInterval) {
+                                var interval = Math.floor(el.duration / self.swiper.target.slides.length);
+                                self.swiper = new swiperCls(options.swiper, interval)
+                            }
+                        },
+                        timeupdate: function(e) {
+                            if (!this.paused) {
+                                self.state = "playing";
+                            } else {
+                                self.state = "pause";
+                            }
+                            if (!self.isdraging)
+                                self.attr("value", el.currentTime);
+                        },
+                        ended: function() {
+                            self.reset.call(self);
+                        }
+                    };
+
+                    for (var t in es) {
+                        el.addEventListener(t, es[t], false);
+                    };
+                }
+                Media.prototype = {
+                    play: function() {
+                        this.el && this.el.play();
+                    },
+                    pause: function() {
+                        this.el && this.el.pause();
+                        self.fadeinController();
+                    },
+                    sync: function(currentTime) {
+                        this.el.currentTime = currentTime || self.value;
+                    },
+                    src: function(url) {
+                        this.el.src = url;
+                        self.play();
                     }
                 }
-            ]);
-
-
+                var ele_media;
+                if (options.media) {
+                    ele_media = _.$(options.media);
+                } else if (options.audio) {
+                    ele_media = document.createElement("audio");
+                    ele_media.src = options.audio;
+                    document.body.appendChild(ele_media);
+                }
+                if (ele_media) {
+                    self.media = new Media(ele_media);
+                    self.outputType = options.outputType || "time";
+                }
+            }
+            this.changeOutput();
+            this.colorTrack();
             return self;
-
         },
+        switchScreen: function(type) {
+            if ("cover" == type) {
+                _.show(this.ele_screencover);
+                _.hide(this.ele_screenmain);
+            } else { //main
+                _.show(this.ele_screenmain);
+                _.hide(this.ele_screencover);
+            }
+        },
+        cover: function() {
+            // this.media && this.media.play();
+            this.play();
+        },
+        //5秒淡出
+        fadeoutController: function() {
+            var self = this;
+            self.fadeoutControllerTimer && clearTimeout(self.fadeoutControllerTimer);
+            if (!_.hasClass.call(self.ele_controller, "fadeout")) {
+                self.fadeoutControllerTimer = setTimeout(function() {
+                    _.fadeout(self.ele_controller, self.ele_ppt_pagination);
+                    _.fadein(self.ele_sliderBottom);
+                }, 5000)
+            }
+        },
+        //淡入
+        fadeinController: function() {
+            var self = this;
+            _.fadein(self.ele_controller, self.ele_ppt_pagination);
+            _.fadeout(self.ele_sliderBottom);
+            self.fadeoutController(); //5秒后淡出
+        },
+        toggleController: function(item, e) {
+            var self = this;
+            if (!this.ele_screenmain.hasClass("screen43")) {
+                return false;
+            }
+            // if (self.rootId != "playback") {
+            //     return false;
+            // }
+            // if ($(e.target).closest(".controller").length > 0) {
+            //     return false;
+            // }
+            _.hasClass.call(self.ele_controller, "fadeout") ? (function() {
+                self.fadeinController();
+            })() : (function() {
+                // if (global.isZszq) { //self.isVideo && 
+                //     return false;
+                // }
+                _.fadeout(self.ele_controller, self.ele_ppt_pagination);
+                _.fadein(self.ele_sliderBottom);
+            })()
+        },
+        toggleScreen: function(item, ev) {
+            if (this.ele_screenmain.hasClass("screen43")) {
+                this.fullscreen()
+            } else {
+                this.smallscreen();
+            }
+        },
+        fullscreen: function(item, ev) {
+            this.ele_screenmain.removeClass("screen43").addClass("fullscreen");
+            this.swiper && this.swiper.zoom(true);
+            _.hide(this.ele_controller);
+            _.show(this.ele_smallscreen);
+        },
+        smallscreen: function(item, e) {
+            this.ele_screenmain.removeClass("fullscreen").addClass("screen43");
+            this.swiper && this.swiper.zoom(false);
+            _.show(this.ele_controller);
+            _.hide(this.ele_smallscreen);
+            this.fadeinController();
+            e.preventDefault(); //screen不要冒泡触发screen
+            e.stopPropagation();
+        },
+        //设置属性
+        attr: function(key, value) {
+            value = parseInt(value);
+            this[key] = value;
+            if (key == "value") {
+                this.ele_range.value = value;
+                this.ele_rangeBottom.value = value;
+            } else {
+                this.ele_range.attr(key, value);
+                this.ele_rangeBottom.attr(key, value);
+            }
+            this.switchBtn.call(this);
+
+            this.changeOutput();
+            this.colorTrack();
+        },
+
         //轨道颜色
         colorTrack: function() {
             var ps = parseInt(100 * this.value / this.max);
-            this.range.css({ 'background': '-webkit-linear-gradient(0deg, ' + this.color[0] + ' ' + ps + '%, ' + this.color[1] + ' ' + ps + '%)' })
+            this.ele_range && this.ele_range.css({ 'background': '-webkit-linear-gradient(0deg, ' + this.color[0] + ' ' + ps + '%, ' + this.color[1] + ' ' + ps + '%)' })
+            this.ele_rangeBottom && this.ele_rangeBottom.css({ 'background': '-webkit-linear-gradient(0deg, ' + this.color[0] + ' ' + ps + '%, ' + this.color[1] + ' ' + ps + '%)' })
         },
-        //值
-        changeResult: function() {
-            if (this.result && this.result.length > 0) {
-                switch (this.result.nodeName.toLowerCase()) {
+        //输出值
+        changeOutput: function() {
+            var output = ""
+            switch (this.outputType) { //"value" ,"fraction" ,"time"
+                case "time":
+                    output = this.timeFormat(this.value) + "/" + this.timeFormat(this.max);
+                    break;
+                case "fraction":
+                    output = (this.value + 1) + "/" + (this.max + 1);
+                    break;
+                default:
+                    output = this.value;
+                    break;
+            }
+            if (this.ele_output) {
+                switch (this.ele_output.nodeName.toLowerCase()) {
                     case "input":
-                        this.result.value = this.value;
+                        this.ele_output.value = output;
                         break;
                     case "div":
-                        this.result.innerHTML = (this.value + 1) + "/" + (this.max + 1);
+                        this.ele_output.innerHTML = output;
                         break;
                 }
             }
         },
-        //时间
-        changeTime: function() {
-            if (this.duration && this.duration.length > 0) {
-                this.duration.innerHTML = this.timeFormat(this.value) + "/" + this.timeFormat(this.max);
+        //切换按钮
+        switchBtn: function() {
+            function _showOneHideOthers(cls) {
+                [this.ele_play, this.ele_pause, this.ele_loading].forEach(function(t) {
+                    if (t.hasClass(cls)) {
+                        _.show(t);
+                    } else {
+                        _.hide(t);
+                    }
+                })
+            };
+            switch (this.state) {
+                case "loading":
+                    // s = "加载";
+                    _showOneHideOthers.call(this, "btn-loading");
+                    break;
+                case "playing":
+                    _showOneHideOthers.call(this, "btn-pause");
+                    // s = "暂停";
+                    break;
+                case "pause":
+                    // s = "播放";
+                    _showOneHideOthers.call(this, "btn-play");
+                    break;
             }
         },
-        changeBtn: function() {
-            if (this.btnPlay && this.btnPlay.length > 0) {
-                var s = ""
-                switch (this.state) {
-                    case "loading":
-                        s = "加载";
-                        break;
-                    case "playing":
-                        s = "暂停";
-                        break;
-                    case "pause":
-                        s = "播放";
-                        break;
-                }
-                this.btnPlay.innerHTML = s; // this.state ? "暂停" : "播放";
-            }
-        },
+        //检查值
         check: function(num) {
-            var num = num || Number(this.range.value); //Number(this.result.value);
+            var num = num || Number(this.ele_range.value); //Number(this.ele_output.value);
             return num >= this.min && num <= this.max;
         },
         change: function() {
             if (this.check()) {
-                // this.range.value = this.result.value;
-                this.value = Number(this.range.value);
+                this.value = Number(this.ele_range.value);
             }
         },
         update: function(val) {
-
             this.value = val;
-            this.range.value = val
-            this.changeResult();
+            this.ele_range.value = val
+            this.changeOutput();
             this.colorTrack();
-            this.changeTime();
-
         },
         move: function() {
-            this.value = Number(this.range.value);
-            this.changeResult();
-            this.colorTrack();
-            this.changeTime();
-
-            this.callback && this.callback.call(this);
-
+            var num = Number(this.ele_range.value);
+            this.update(num);
+            this.swiper && this.swiper.slideTo();
         },
         sub: function() {
             var num = this.value - this.step;
             if (this.check(num)) {
-                this.range.value = this.value = num;
-                this.changeResult();
-                this.colorTrack();
-                this.changeTime();
+                this.update(num);
             }
-            this.callback && this.callback();
+            this.swiper && this.swiper.slideTo();
         },
         add: function() {
             var num = this.value + this.step;
             if (this.check(num)) {
-                this.range.value = this.value = num;
-                this.changeResult();
-                this.colorTrack();
-                this.changeTime();
+                this.update(num);
             }
-            this.changeBtn();
-            this.callback && this.callback.call(this);
+            this.switchBtn.call(this);
+            this.swiper && this.swiper.slideTo();
         },
         //时间格式  秒
         timeFormat: function(duration) {
-            //小时
-            var hour = 0;
-            if (duration > 3600)
-                hour = duration ? parseInt(duration / 3600) : 0;
-
-            //分钟
-            duration = duration ? duration % 3600 : 0;
-            var minute = duration ? parseInt(duration / 60) : 0;
+            var hour = Math.floor(duration / 3600);
+            var other = duration % 3600;
+            var minute = Math.floor(other / 60);
+            var seconds = Math.floor(other % 60);
             if (minute < 10)
                 minute = "0" + minute;
-
-            //秒
-            var seconds = duration ? parseInt(duration % 60) : 0;
             if (seconds < 10)
-                seconds = "0" + seconds;
-
+                seconds = '0' + seconds;
             return hour ? hour + ":" + minute + ":" + seconds : minute + ":" + seconds;
         },
+        //click play btn
         play: function() {
             var self = this;
             self.state = "loading";
-            self.changeBtn();
-            (function _play() {
-                self.state = "playing";
-                self.timmer = setTimeout(function() {
-                    if (self.value >= self.max) {
-                        self.pause.call(self);
-                        self.reset.call(self);
-                        return;
-                    }
-                    self.add();
-                    _play();
-                }, 1000)
-            })();
+            self.switchBtn.call(self);
+            self.fadeinController();
+            self.switchScreen();
+            if (this.media) {
+                //播放媒体
+                this.media.play();
+            } else {
+                //自动播放
+                (function _play() {
+                    self.state = "playing";
+                    self.playTimmer = setTimeout(function() {
+                        if (self.value >= self.max) {
+                            self.pause.call(self);
+                            self.reset.call(self);
+                            return;
+                        }
+                        self.add();
+                        _play();
+                    }, 1000)
+                })();
+            }
         },
         pause: function() {
             var self = this;
             self.state = "pause";
-            clearTimeout(self.timmer);
-            self.changeBtn();
+            self.playTimmer && clearTimeout(self.playTimmer);
+            self.switchBtn.call(self);
+            self.media && self.media.pause();
+        },
+        //click loadin btn
+        loading: function() {
+            this.pause();
         },
         reset: function() {
-            this.range.value = this.value = 0;
+            self.state = "pause";
+            this.ele_range.value = this.value = 0;
             this.colorTrack();
-            this.callback && this.callback.call(this);
-
-            _.hide(btns.pause);
-            _.show(btns.play);
+            // this.callSwiper && this.callSwiper.call(this);
+            this.switchBtn.call(this);
+            this.swiper && this.swiper.slideTo();
+        },
+        src: function(url) {
+            if (this.media) {
+                this.media.src(url)
+            } else {
+                this.play();
+            }
         }
     }
-    silder.prototype.init.prototype = silder.prototype;
+    h5player.prototype.init.prototype = h5player.prototype;
 
-    var mySlider = silder({
-        el: ".slider",
+    var myPlayer = h5player({
+        el: ".h5player",
         color: ["rgba(247, 106, 43, 1)", 'white'],
         max: 9,
         min: 0,
         step: 1,
         value: 0,
-        callback: function() {
-            mySwiper && mySwiper.slideTo(this.value, 1000, false); 
+        audio: nextMp3(),
+        // media: "#myAudio",
+        on: {
+            cover: function() {
+                mySwiper.init()
+                initPPT()
+            },
         }
-    })
+        // swiper: mySwiper,
+        // swiperInterval: 10 //媒体播放10s一页 默认1s
+    });
     </script>
 </body>
 
